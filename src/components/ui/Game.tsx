@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import GameBoard from "./GameBaord";
 
 // 定義難度和規則的類型
-type Difficulty = "easy" | "medium" | "hard";
+type Difficulty = "easy" | "medium" | "hard" | "crazy";
 type Rule = "sequence" | "odd" | "even" | "prime";
 
 interface DifficultyConfig {
@@ -16,6 +16,7 @@ const difficulties: Record<Difficulty, DifficultyConfig> = {
   easy: { size: 3, max: 9 },
   medium: { size: 5, max: 25 },
   hard: { size: 7, max: 49 },
+  crazy: { size: 10, max: 100 },
 };
 
 const ruleLabels: Record<Rule, string> = {
@@ -114,6 +115,10 @@ export default function Home() {
     }
   }, [nextExpectedIndex, isPlaying, difficulty, rule, timer]);
 
+  useEffect(() => {
+    setNumbers(shuffleNumbers());
+  }, [difficulty, rule]);
+
   // 處理點擊事件
   const handleClick = (number: number) => {
     if (!isPlaying) return;
@@ -121,17 +126,19 @@ export default function Home() {
       difficulties[difficulty].max,
       rule
     );
+    // 如果點擊的數字是目標序列的下一個數字，則更新下一個預期索引
     if (number === targetSequence[nextExpectedIndex]) {
       setNextExpectedIndex((prev) => prev + 1);
       setWrongClick(null);
     } else {
+      // 如果點擊的數字不是目標序列的下一個數字，則設置錯誤點擊
       setWrongClick(number);
       setTimeout(() => setWrongClick(null), 300); // 震動0.3秒後清除
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gray-100 p-4 gap-2">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gray-100 p-4 gap-6">
       <h1 className="text-3xl font-bold">數字順序遊戲</h1>
 
       {(isPlaying || nextExpectedIndex >=
@@ -145,17 +152,19 @@ export default function Home() {
       )}
 
       {/* 難度和規則選擇 */}
-      <div className="mb-4 flex gap-4">
-        <select
-          value={difficulty}
+      {!isPlaying && (
+        <div className="mb-4 flex gap-4 *:cursor-pointer">
+          <select
+            value={difficulty}
           onChange={(e) => setDifficulty(e.target.value as Difficulty)}
           className="p-2 border rounded"
           disabled={isPlaying}
           title="難度"
         >
-          <option value="easy">簡單 (3x3)</option>
-          <option value="medium">中等 (5x5)</option>
-          <option value="hard">困難 (7x7)</option>
+          <option value="easy">S (3x3)</option>
+          <option value="medium">M (5x5)</option>
+          <option value="hard">L (7x7)</option>
+          <option value="crazy">XL (10x10)</option>
         </select>
         <select
           value={rule}
@@ -169,8 +178,16 @@ export default function Home() {
               {label}
             </option>
           ))}
-        </select>
-      </div>
+          </select>
+        </div>
+      )}
+
+      {nextExpectedIndex >=
+        generateTargetSequence(difficulties[difficulty].max, rule).length && (
+        <div className="mt-4 text-2xl font-bold text-green-600">
+          恭喜！您在 {timer} 秒內完成了遊戲。
+        </div>
+      )}
 
       {numbers.length === 0 ? (
         <div className="text-xl">請點擊「開始遊戲」開始</div>
@@ -191,17 +208,11 @@ export default function Home() {
 
       <button
         onClick={startGame}
-        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer"
       >
         {isPlaying ? "重新開始" : "開始遊戲"}
       </button>
 
-      {nextExpectedIndex >=
-        generateTargetSequence(difficulties[difficulty].max, rule).length && (
-        <div className="mt-4 text-2xl font-bold text-green-600">
-          恭喜！您在 {timer} 秒內完成了遊戲。
-        </div>
-      )}
     </div>
   );
 }
