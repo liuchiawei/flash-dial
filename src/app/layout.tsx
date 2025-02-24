@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Flash Dial | Reaction Training Game",
+  title: "Click Blitz | A Reaction Training Game",
   description:
-    "This is a reaction training game that helps you improve your reaction time.",
+    "這是一個反應訓練小遊戲。請由小到大依序點擊畫面中的數字。玩家也能自行調整難度和規則。 This is a reaction training game that helps you improve your reaction time.",
 };
 
 export default function RootLayout({
