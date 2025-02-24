@@ -138,57 +138,73 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gray-100 p-4 gap-6">
-      <h1 className="text-3xl font-bold">數字順序遊戲</h1>
+    <div className="flex flex-col items-center justify-center h-screen w-full bg-gray-100 p-4 gap-4">
+      {/* Title Section 標題 */}
+      <div className="flex flex-col items-center justify-center gap-2">
+        <h1 className="text-4xl font-bold">Click Blitz</h1>
+        <p className="text-gray-500 text-justify">
+          這是一個反應訓練小遊戲，請由小到大依序點擊畫面中的數字
+        </p>
+      </div>
 
-      {(isPlaying || nextExpectedIndex >=
-        generateTargetSequence(difficulties[difficulty].max, rule).length) && (
-        <>
+      {/* Time Display Section 顯示時間和最佳時間 */}
+      {(isPlaying ||
+        nextExpectedIndex >=
+          generateTargetSequence(difficulties[difficulty].max, rule)
+            .length) && (
+        <div className="flex flex-col items-center justify-center gap-1">
           <div className="text-xl">時間：{timer} 秒</div>
-          <div className="text-lg">
+          <div className="text-gray-500">
             最佳時間：{bestTime !== null ? `${bestTime} 秒` : "尚未記錄"}
           </div>
-        </>
-      )}
-
-      {/* 難度和規則選擇 */}
-      {!isPlaying && (
-        <div className="mb-4 flex gap-4 *:cursor-pointer">
-          <select
-            value={difficulty}
-          onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-          className="p-2 border rounded"
-          disabled={isPlaying}
-          title="難度"
-        >
-          <option value="easy">S (3x3)</option>
-          <option value="medium">M (5x5)</option>
-          <option value="hard">L (7x7)</option>
-          <option value="crazy">XL (10x10)</option>
-        </select>
-        <select
-          value={rule}
-          onChange={(e) => setRule(e.target.value as Rule)}
-          className="p-2 border rounded"
-          disabled={isPlaying}
-          title="規則"
-        >
-          {Object.entries(ruleLabels).map(([key, label]) => (
-            <option key={key} value={key}>
-              {label}
-            </option>
-          ))}
-          </select>
         </div>
       )}
 
+      {/* Difficulty and Rule Selection Section 顯示難度和規則選擇 */}
+      {!isPlaying && (
+        <div className="flex flex-col items-center justify-center gap-1">
+          <h2 className="text-xl">難度選擇和規則</h2>
+          <div className="flex gap-4 *:cursor-pointer">
+            <select
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+              className="p-2 border rounded"
+              disabled={isPlaying}
+              title="難度"
+            >
+              <option value="easy">S (3x3)</option>
+              <option value="medium">M (5x5)</option>
+              <option value="hard">L (7x7)</option>
+              <option value="crazy">XL (10x10)</option>
+            </select>
+            <select
+              value={rule}
+              onChange={(e) => setRule(e.target.value as Rule)}
+              className="p-2 border rounded"
+              disabled={isPlaying}
+              title="規則"
+            >
+              {Object.entries(ruleLabels).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
+
+      {/* Game Completion Message Section 顯示遊戲完成訊息 */}
       {nextExpectedIndex >=
         generateTargetSequence(difficulties[difficulty].max, rule).length && (
-        <div className="mt-4 text-2xl font-bold text-green-600">
-          恭喜！您在 {timer} 秒內完成了遊戲。
+        <div className="mt-4 text-xl font-bold text-center">
+          恭喜！
+          <br />
+          你在 {timer} 秒內完成。
         </div>
       )}
 
+      {/* Game Board Section 遊戲面板 */}
       {numbers.length === 0 ? (
         <div className="text-xl">請點擊「開始遊戲」開始</div>
       ) : (
@@ -206,13 +222,13 @@ export default function Home() {
         />
       )}
 
+      {/* Start Button Section 開始按鈕 */}
       <button
-        onClick={startGame}
+        onClick={isPlaying ? () => setIsPlaying(false) : startGame}
         className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer"
       >
         {isPlaying ? "重新開始" : "開始遊戲"}
       </button>
-
     </div>
   );
 }

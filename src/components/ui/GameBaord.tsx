@@ -19,7 +19,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 }) => {
   return (
     <div
-      className={`w-full max-w-4xl h-108 grid gap-1 ${
+      className={`w-full max-w-4xl h-full grid gap-1 ${
         size === 10 ? "grid-cols-10" : size === 7 ? "grid-cols-7" : size === 5 ? "grid-cols-5" : "grid-cols-3"
       }`}
     >
@@ -33,7 +33,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
             key={number}
             onClick={() => handleClick(number)}
             disabled={!isPlaying}
-            className={`relative w-full h-full text-white text-lg font-bold rounded-lg flex items-center justify-center transition-all cursor-pointer
+            className={`relative w-full h-full text-white text-lg font-bold rounded-lg flex items-center justify-center transition-all cursor-pointer active:translate-y-[1px] active:inset-shadow-sm
               ${
                 isClicked
                   ? "bg-green-500"
@@ -42,9 +42,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                   : "bg-gray-400"
               }
               ${
-                isWrong
-                  ? "bg-red-400 animate-shake animate-once animate-duration-100"
-                  : ""
+                isWrong ? "bg-red-400" : ""
               }`}
           >
             {number}
