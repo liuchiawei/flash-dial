@@ -147,19 +147,6 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Time Display Section 顯示時間和最佳時間 */}
-      {(isPlaying ||
-        nextExpectedIndex >=
-          generateTargetSequence(difficulties[difficulty].max, rule)
-            .length) && (
-        <div className="flex flex-col items-center justify-center gap-1">
-          <div className="text-xl">時間：{timer} 秒</div>
-          <div className="text-gray-500">
-            最佳時間：{bestTime !== null ? `${bestTime} 秒` : "尚未記錄"}
-          </div>
-        </div>
-      )}
-
       {/* Difficulty and Rule Selection Section 顯示難度和規則選擇 */}
       {!isPlaying && (
         <div className="flex flex-col items-center justify-center gap-1">
@@ -194,10 +181,23 @@ export default function Home() {
         </div>
       )}
 
+      {/* Time Display Section 顯示時間和最佳時間 */}
+      {(isPlaying ||
+        nextExpectedIndex >=
+          generateTargetSequence(difficulties[difficulty].max, rule)
+            .length) && (
+        <div className="flex flex-col items-center justify-center gap-1">
+          <div className="text-xl">時間：{timer} 秒</div>
+          <div className="text-gray-500">
+            最佳時間：{bestTime !== null ? `${bestTime} 秒` : "尚未記錄"}
+          </div>
+        </div>
+      )}
+
       {/* Game Completion Message Section 顯示遊戲完成訊息 */}
       {nextExpectedIndex >=
         generateTargetSequence(difficulties[difficulty].max, rule).length && (
-        <div className="mt-4 text-xl font-bold text-center">
+        <div className="text-xl font-bold text-center">
           恭喜！
           <br />
           你在 {timer} 秒內完成。
