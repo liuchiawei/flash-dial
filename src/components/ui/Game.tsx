@@ -86,6 +86,7 @@ export default function Home() {
   useEffect(() => {
     if (isPlaying) {
       const interval = setInterval(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         setTimer(((Date.now() - (startTime || 0)) / 1000).toFixed(2) as any);
       }, 50);
       return () => clearInterval(interval);
