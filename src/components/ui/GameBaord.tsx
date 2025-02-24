@@ -36,9 +36,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
             className={`relative w-full h-full text-white text-lg font-bold rounded-lg flex items-center justify-center transition-all cursor-pointer active:translate-y-[1px] active:inset-shadow-sm
               ${
                 isClicked
-                  ? "bg-green-500"
+                  ? "bg-teal-500"
                   : isPlaying
-                  ? "bg-blue-500"
+                  ? "bg-gray-500"
                   : "bg-gray-400"
               }
               ${

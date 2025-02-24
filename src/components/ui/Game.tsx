@@ -138,46 +138,40 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen w-full bg-gray-100 p-4 gap-4">
+    <div className="flex flex-col items-center justify-center h-screen w-full bg-linear-140 from-slate-800 to-gray-900 p-4 gap-4 text-gray-50">
       {/* Title Section 標題 */}
-      <div className="flex flex-col items-center justify-center gap-2">
-        <h1 className="text-4xl font-bold">Click Blitz</h1>
-        <p className="text-gray-500 text-justify">
-          這是一個反應訓練小遊戲，請由小到大依序點擊畫面中的數字
-        </p>
-      </div>
+      <p className="text-gray-500 text-justify">
+        這是一個反應訓練小遊戲，請由小到大依序點擊畫面中的數字
+      </p>
 
       {/* Difficulty and Rule Selection Section 顯示難度和規則選擇 */}
       {!isPlaying && (
-        <div className="flex flex-col items-center justify-center gap-1">
-          <h2 className="text-xl">難度選擇和規則</h2>
-          <div className="flex gap-4 *:cursor-pointer">
-            <select
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-              className="p-2 border rounded"
-              disabled={isPlaying}
-              title="難度"
-            >
-              <option value="easy">S (3x3)</option>
-              <option value="medium">M (5x5)</option>
-              <option value="hard">L (7x7)</option>
-              <option value="crazy">XL (10x10)</option>
-            </select>
-            <select
-              value={rule}
-              onChange={(e) => setRule(e.target.value as Rule)}
-              className="p-2 border rounded"
-              disabled={isPlaying}
-              title="規則"
-            >
-              {Object.entries(ruleLabels).map(([key, label]) => (
-                <option key={key} value={key}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div className="flex gap-4 *:cursor-pointer">
+          <select
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value as Difficulty)}
+            className="p-2 border rounded bg-gray-800"
+            disabled={isPlaying}
+            title="難度"
+          >
+            <option value="easy">S (3x3)</option>
+            <option value="medium">M (5x5)</option>
+            <option value="hard">L (7x7)</option>
+            <option value="crazy">XL (10x10)</option>
+          </select>
+          <select
+            value={rule}
+            onChange={(e) => setRule(e.target.value as Rule)}
+            className="p-2 border rounded bg-gray-800"
+            disabled={isPlaying}
+            title="規則"
+          >
+            {Object.entries(ruleLabels).map(([key, label]) => (
+              <option key={key} value={key}>
+                {label}
+              </option>
+            ))}
+          </select>
         </div>
       )}
 
@@ -191,16 +185,6 @@ export default function Home() {
           <div className="text-gray-500">
             最佳時間：{bestTime !== null ? `${bestTime} 秒` : "尚未記錄"}
           </div>
-        </div>
-      )}
-
-      {/* Game Completion Message Section 顯示遊戲完成訊息 */}
-      {nextExpectedIndex >=
-        generateTargetSequence(difficulties[difficulty].max, rule).length && (
-        <div className="text-xl font-bold text-center">
-          恭喜！
-          <br />
-          你在 {timer} 秒內完成。
         </div>
       )}
 
@@ -225,10 +209,20 @@ export default function Home() {
       {/* Start Button Section 開始按鈕 */}
       <button
         onClick={isPlaying ? () => setIsPlaying(false) : startGame}
-        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer"
+        className="px-4 py-2 bg-teal-500 text-white rounded hover:bg-teal-600 cursor-pointer"
       >
         {isPlaying ? "重新開始" : "開始遊戲"}
       </button>
+
+      {/* Game Completion Message Section 顯示遊戲完成訊息 */}
+      {nextExpectedIndex >=
+        generateTargetSequence(difficulties[difficulty].max, rule).length && (
+        <div className="text-xl font-bold text-center">
+          恭喜！
+          <br />
+          你在 {timer} 秒內完成。
+        </div>
+      )}
     </div>
   );
 }
