@@ -19,7 +19,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 }) => {
   return (
     <div
-      className={`w-full max-w-4xl h-full grid gap-1 ${
+      className={`w-full max-w-4xl h-2/3 grid gap-1 ${
         size === 10
           ? "grid-cols-10"
           : size === 7
