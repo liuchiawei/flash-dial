@@ -139,7 +139,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full bg-linear-140 from-slate-800 to-gray-900 p-4 gap-4 text-gray-50">
+    <div className="flex flex-col items-center justify-center h-svh w-full bg-linear-140 from-slate-800 to-gray-900 p-4 gap-4 text-gray-50">
       {/* Title Section 標題 */}
       {!isPlaying && (
         <p className="text-gray-500 text-justify">
