@@ -141,7 +141,7 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center h-svh w-full bg-linear-140 from-slate-800 to-gray-900 p-4 gap-4 text-gray-50">
       {/* Title Section 標題 */}
-      {!isPlaying && (
+      {!isPlaying && !numbers.length && (
         <p className="text-gray-500 text-justify">
           這是一個反應訓練小遊戲，請由小到大依序點擊畫面中的數字
         </p>
