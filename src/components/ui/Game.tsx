@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import GameBoard from "./GameBaord";
+import { Icon } from "@iconify/react";
 
 // 定義難度和規則的類型
 type Difficulty = "easy" | "medium" | "hard" | "crazy";
@@ -140,10 +141,11 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center h-screen w-full bg-linear-140 from-slate-800 to-gray-900 p-4 gap-4 text-gray-50">
       {/* Title Section 標題 */}
-      <p className="text-gray-500 text-justify">
-        這是一個反應訓練小遊戲，請由小到大依序點擊畫面中的數字
-      </p>
-
+      {!isPlaying && (
+        <p className="text-gray-500 text-justify">
+          這是一個反應訓練小遊戲，請由小到大依序點擊畫面中的數字
+        </p>
+      )}
       {/* Difficulty and Rule Selection Section 顯示難度和規則選擇 */}
       {!isPlaying && (
         <div className="flex gap-4 *:cursor-pointer">
@@ -181,7 +183,14 @@ export default function Home() {
           generateTargetSequence(difficulties[difficulty].max, rule)
             .length) && (
         <div className="flex flex-col items-center justify-center gap-1">
-          <div className="text-xl">時間：{timer} 秒</div>
+          {isPlaying ? (
+            <div className="text-xl">時間：{timer} 秒</div>
+          ) : (
+            // Game Completion Message Section 顯示遊戲完成訊息
+            <div className="text-lg font-bold text-center">
+              恭喜！你在 {timer} 秒內完成。
+            </div>
+          )}
           <div className="text-gray-500">
             最佳時間：{bestTime !== null ? `${bestTime} 秒` : "尚未記錄"}
           </div>
@@ -209,20 +218,14 @@ export default function Home() {
       {/* Start Button Section 開始按鈕 */}
       <button
         onClick={isPlaying ? () => setIsPlaying(false) : startGame}
-        className="px-4 py-2 bg-teal-500 text-white rounded hover:bg-teal-600 cursor-pointer"
+        className="px-4 py-2 bg-teal-700 text-white rounded-lg hover:bg-teal-600 cursor-pointer"
       >
-        {isPlaying ? "重新開始" : "開始遊戲"}
+        {isPlaying ? (
+          <Icon icon="material-symbols:stop-rounded" width="24" height="24" />
+        ) : (
+          <Icon icon="material-symbols:replay-rounded" width="24" height="24" />
+        )}
       </button>
-
-      {/* Game Completion Message Section 顯示遊戲完成訊息 */}
-      {nextExpectedIndex >=
-        generateTargetSequence(difficulties[difficulty].max, rule).length && (
-        <div className="text-xl font-bold text-center">
-          恭喜！
-          <br />
-          你在 {timer} 秒內完成。
-        </div>
-      )}
     </div>
   );
 }
