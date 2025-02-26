@@ -43,7 +43,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
             key={number}
             onClick={() => handleClick(number)}
             disabled={!isPlaying || !targetSequence.includes(number)}
-            className={`w-full h-full text-white text-lg font-bold rounded-lg flex items-center justify-center transition-all 
+            className={`w-full h-full text-white text-lg font-bold rounded-lg flex items-center justify-center transition-all select-none
               ${
                 isClicked
                   ? isGameOver
