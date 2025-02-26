@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import GameBoard from "./GameBaord";
 import { Icon } from "@iconify/react";
 
@@ -37,6 +37,15 @@ export default function Home() {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [bestTime, setBestTime] = useState<number | null>(null);
   const [wrongClick, setWrongClick] = useState<number | null>(null);
+  const [isGameOver, setIsGameOver] = useState<boolean>(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  // 禁用觸控捲動
+  useEffect(() => {
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+    };
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
+  }, []);
 
   // 質數檢查函數
   const isPrime = (num: number): boolean => {
@@ -77,6 +86,7 @@ export default function Home() {
     setTimer(0);
     setStartTime(Date.now());
     setIsPlaying(true);
+    setIsGameOver(false);
     setWrongClick(null);
 
     // 載入最佳時間
@@ -84,14 +94,30 @@ export default function Home() {
     setBestTime(storedBest ? parseFloat(storedBest) : null);
   };
 
-  // 計時器邏輯
+  // isPlaying 事件
   useEffect(() => {
     if (isPlaying) {
+      // 開始計時
       const interval = setInterval(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         setTimer(((Date.now() - (startTime || 0)) / 1000).toFixed(2) as any);
       }, 50);
-      return () => clearInterval(interval);
+
+      // 禁用觸控捲動
+      const container = containerRef.current;
+      if (container) {
+        const handleTouchMove = (e: TouchEvent) => {
+          e.preventDefault();
+        };
+        container.addEventListener("touchmove", handleTouchMove, {
+          passive: false,
+        });
+
+        return () => {
+          clearInterval(interval);
+          container.removeEventListener("touchmove", handleTouchMove);
+        };
+      }
     }
   }, [isPlaying, startTime]);
 
@@ -103,6 +129,7 @@ export default function Home() {
     );
     if (nextExpectedIndex >= targetSequence.length && isPlaying) {
       setIsPlaying(false);
+      setIsGameOver(true);
       const currentTime = parseFloat(timer.toString());
       const storedBest = localStorage.getItem(`bestTime_${difficulty}_${rule}`);
       const best = storedBest ? parseFloat(storedBest) : Infinity;
@@ -139,7 +166,10 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-svh w-full bg-linear-140 from-slate-800 to-gray-900 p-4 gap-4 text-gray-50">
+    <div
+      className="flex flex-col items-center justify-center h-svh w-full bg-linear-140 from-slate-800 to-gray-900 p-4 gap-4 text-gray-50"
+      ref={containerRef}
+    >
       {/* Title Section 標題 */}
       {!isPlaying && !numbers.length && (
         <p className="text-gray-500 text-justify">
@@ -205,6 +235,7 @@ export default function Home() {
           numbers={numbers}
           handleClick={handleClick}
           isPlaying={isPlaying}
+          isGameOver={isGameOver}
           targetSequence={generateTargetSequence(
             difficulties[difficulty].max,
             rule

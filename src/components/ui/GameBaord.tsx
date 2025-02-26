@@ -2,6 +2,7 @@ interface GameBoardProps {
   numbers: number[];
   handleClick: (number: number) => void;
   isPlaying: boolean;
+  isGameOver: boolean;
   targetSequence: number[];
   nextExpectedIndex: number;
   wrongClick: number | null;
@@ -12,6 +13,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   numbers,
   handleClick,
   isPlaying,
+  isGameOver,
   targetSequence,
   nextExpectedIndex,
   wrongClick,
@@ -44,7 +46,9 @@ const GameBoard: React.FC<GameBoardProps> = ({
             className={`w-full h-full text-white text-lg font-bold rounded-lg flex items-center justify-center transition-all 
               ${
                 isClicked
-                  ? "bg-teal-500"
+                  ? isGameOver
+                    ? "bg-gray-500"
+                    : "bg-teal-500"
                   : isPlaying
                   ? "bg-gray-600 cursor-pointer active:translate-y-[1px] active:inset-shadow-sm"
                   : "bg-gray-500"
