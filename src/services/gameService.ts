@@ -1,7 +1,6 @@
 // src/services/gameService.ts
 
 interface GameResult {
-  id?: number;
   difficulty: string;
   rule: string;
   completionTime: number;

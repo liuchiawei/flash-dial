@@ -1,10 +1,8 @@
 "use client";
-// Game system 遊戲機制
-import axios from "axios";
+
 import { useState, useEffect } from "react";
 import GameBoard from "./GameBaord";
 import { Icon } from "@iconify/react";
-// record game result and get top scores
 import { saveGameResult, getTopScores } from "@/services/gameService";
 import { toast } from "react-hot-toast";
 
@@ -39,7 +37,7 @@ interface GameResult {
   timestamp: number;
 }
 
-export default function Game() {
+export default function Home() {
   const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [rule, setRule] = useState<Rule>("sequence");
   const [numbers, setNumbers] = useState<number[]>([]);
@@ -64,7 +62,7 @@ export default function Game() {
     return true;
   };
 
-  // 生成遊戲數字序列
+  // 生成目標序列
   const generateTargetSequence = (max: number, rule: Rule): number[] => {
     const allNumbers = Array.from({ length: max }, (_, i) => i + 1);
     return allNumbers.filter((num) => {
@@ -95,6 +93,8 @@ export default function Game() {
     setStartTime(Date.now());
     setIsPlaying(true);
     setWrongClick(null);
+    setShowNameInput(false);
+    setShowLeaderboard(false);
 
     // 載入最佳時間
     const storedBest = localStorage.getItem(`bestTime_${difficulty}_${rule}`);
@@ -121,6 +121,7 @@ export default function Game() {
     if (nextExpectedIndex >= targetSequence.length && isPlaying) {
       setIsPlaying(false);
       const currentTime = parseFloat(timer.toString());
+
       // 更新本地存儲的最佳時間
       const storedBest = localStorage.getItem(`bestTime_${difficulty}_${rule}`);
       const best = storedBest ? parseFloat(storedBest) : Infinity;
@@ -215,7 +216,7 @@ export default function Game() {
         </p>
       )}
       {/* Difficulty and Rule Selection Section 顯示難度和規則選擇 */}
-      {!isPlaying && (
+      {!isPlaying && !showNameInput && (
         <div className="flex gap-4 *:cursor-pointer">
           <select
             value={difficulty}
@@ -373,16 +374,41 @@ export default function Game() {
       ) : null}
 
       {/* Start Button Section 開始按鈕 */}
-      <button
-        onClick={isPlaying ? () => setIsPlaying(false) : startGame}
-        className="px-4 py-2 bg-teal-700 text-white rounded-lg hover:bg-teal-600 cursor-pointer"
-      >
-        {isPlaying ? (
-          <Icon icon="material-symbols:stop-rounded" width="24" height="24" />
-        ) : (
-          <Icon icon="material-symbols:replay-rounded" width="24" height="24" />
-        )}
-      </button>
+      {!showNameInput && !showLeaderboard && (
+        <div className="flex gap-4">
+          <button
+            onClick={isPlaying ? () => setIsPlaying(false) : startGame}
+            className="px-4 py-2 bg-teal-700 text-white rounded-lg hover:bg-teal-600 cursor-pointer"
+          >
+            {isPlaying ? (
+              <Icon
+                icon="material-symbols:stop-rounded"
+                width="24"
+                height="24"
+              />
+            ) : (
+              <Icon
+                icon="material-symbols:replay-rounded"
+                width="24"
+                height="24"
+              />
+            )}
+          </button>
+
+          {!isPlaying && numbers.length > 0 && (
+            <button
+              onClick={viewLeaderboard}
+              className="px-4 py-2 bg-indigo-700 text-white rounded-lg hover:bg-indigo-600 cursor-pointer"
+            >
+              <Icon
+                icon="material-symbols:leaderboard"
+                width="24"
+                height="24"
+              />
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

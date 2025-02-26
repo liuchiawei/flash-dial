@@ -1,22 +1,12 @@
 // src/app/api/game-results/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import { sql, initDatabase } from "@/lib/db";
-
-// Initialize the database on the first request
-let dbInitialized = false;
-
-async function ensureDbInitialized() {
-  if (!dbInitialized) {
-    await initDatabase();
-    dbInitialized = true;
-  }
-}
+import { kv } from "@vercel/kv"; // Using Vercel KV storage for simplicity
+// Note: You'll need to install this with: npm install @vercel/kv
+// And configure it according to Vercel's documentation
 
 export async function POST(request: NextRequest) {
   try {
-    await ensureDbInitialized();
-
     const body = await request.json();
 
     // Validate required fields
@@ -27,21 +17,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Insert the game result into the database
-    const result = await sql`
-      INSERT INTO game_results 
-        (difficulty, rule, completion_time, player_name, timestamp)
-      VALUES 
-        (${body.difficulty}, ${body.rule}, ${body.completionTime}, ${
-      body.playerName || "匿名玩家"
-    }, ${body.timestamp})
-      RETURNING id
-    `;
+    // Create a unique ID for the result
+    const id = `game:${Date.now()}:${Math.random()
+      .toString(36)
+      .substring(2, 15)}`;
 
-    return NextResponse.json({
-      success: true,
-      id: result[0].id,
-    });
+    // Store in KV
+    await kv.hset(id, body);
+
+    // Also maintain a sorted set by completion time for each difficulty/rule combination
+    const scoreKey = `scores:${body.difficulty}:${body.rule}`;
+    await kv.zadd(scoreKey, { score: body.completionTime, member: id });
+
+    return NextResponse.json({ success: true, id });
   } catch (error) {
     console.error("Error saving game result:", error);
     return NextResponse.json(
@@ -53,8 +41,6 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    await ensureDbInitialized();
-
     const { searchParams } = new URL(request.url);
     const difficulty = searchParams.get("difficulty");
     const rule = searchParams.get("rule");
@@ -67,24 +53,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get top scores ordered by completion time (ascending)
-    const results = await sql`
-      SELECT 
-        id, 
-        difficulty, 
-        rule, 
-        completion_time AS "completionTime", 
-        player_name AS "playerName", 
-        timestamp
-      FROM 
-        game_results
-      WHERE 
-        difficulty = ${difficulty} AND rule = ${rule}
-      ORDER BY 
-        completion_time ASC
-      LIMIT 
-        ${limit}
-    `;
+    // Get top scores from sorted set
+    const scoreKey = `scores:${difficulty}:${rule}`;
+    const topScoreIds = await kv.zrange(scoreKey, 0, limit - 1);
+
+    // Fetch full details for each score
+    const results = [];
+    for (const id of topScoreIds) {
+      const result = await kv.hgetall(id as string);
+      if (result) {
+        results.push(result);
+      }
+    }
 
     return NextResponse.json(results);
   } catch (error) {

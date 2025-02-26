@@ -14,8 +14,11 @@ datasource db {
 }
 
 // 記錄遊戲時間
-model Record {
-  id    Int      @id @default(autoincrement())
-  time  Float    // 儲存完成時間（秒）
-  createdAt DateTime @default(now())
+model GameCompletion {
+  id             Int      @id @default(autoincrement())
+  userId         String
+  completionTime Float
+  difficulty     String
+  rule           String
+  createdAt      DateTime @default(now())
 }
