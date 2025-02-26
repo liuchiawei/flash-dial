@@ -12,3 +12,10 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// 記錄遊戲時間
+model Record {
+  id    Int      @id @default(autoincrement())
+  time  Float    // 儲存完成時間（秒）
+  createdAt DateTime @default(now())
+}
