@@ -94,6 +94,18 @@ export default function Home() {
     setBestTime(storedBest ? parseFloat(storedBest) : null);
   };
 
+  // 記錄遊戲結果
+  const recordGame = () => {
+    const completionTime = parseFloat(timer.toString());
+    const userId = "anonymous";
+    if (userId) {
+      fetch("/api/record", {
+        method: "POST",
+        body: JSON.stringify({ userId, completionTime, difficulty, rule }),
+      });
+    }
+  };
+
   // isPlaying 事件
   useEffect(() => {
     if (isPlaying) {
@@ -127,12 +139,14 @@ export default function Home() {
       difficulties[difficulty].max,
       rule
     );
+    // 遊戲完成
     if (nextExpectedIndex >= targetSequence.length && isPlaying) {
       setIsPlaying(false);
       setIsGameOver(true);
       const currentTime = parseFloat(timer.toString());
       const storedBest = localStorage.getItem(`bestTime_${difficulty}_${rule}`);
       const best = storedBest ? parseFloat(storedBest) : Infinity;
+      // 更新最佳時間
       if (currentTime < best) {
         localStorage.setItem(
           `bestTime_${difficulty}_${rule}`,
@@ -140,6 +154,8 @@ export default function Home() {
         );
         setBestTime(currentTime);
       }
+      // 記錄遊戲結果
+      recordGame();
     }
   }, [nextExpectedIndex, isPlaying, difficulty, rule, timer]);
 
