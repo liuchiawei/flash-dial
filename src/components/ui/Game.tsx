@@ -157,6 +157,7 @@ export default function Home() {
       // 記錄遊戲結果
       recordGame();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nextExpectedIndex, isPlaying, difficulty, rule, timer]);
 
   useEffect(() => {
@@ -183,7 +184,7 @@ export default function Home() {
 
   return (
     <div
-      className="flex flex-col items-center justify-center h-svh w-full bg-linear-140 from-slate-800 to-gray-900 p-4 gap-4 text-gray-50"
+      className="flex flex-col items-center justify-center h-svh w-full p-4 gap-4"
       ref={containerRef}
     >
       {/* Title Section 標題 */}

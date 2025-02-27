@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { Difficulty, Rule } from "@/lib/props";
 
 const prisma = new PrismaClient();
 

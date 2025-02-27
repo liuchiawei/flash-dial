@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from 'react'
 
-export default function page() {
+export default function Page() {
   const [data, setData] = useState([]);
   useEffect(() => {
     fetch("/api/results")
