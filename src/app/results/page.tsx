@@ -11,7 +11,7 @@ export default function Page() {
   }, []);
 
   // 日時変換関数
-  const formattedDate = (date: string) =>
+  const formattedDate: (date: string) => string = (date: string) =>
     new Intl.DateTimeFormat("zh-TW", {
       year: "numeric",
       month: "2-digit",
