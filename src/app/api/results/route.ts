@@ -5,11 +5,15 @@ const prisma = new PrismaClient();
 
 export async function GET() {
   try {
-    const data = await prisma.gameCompletion.findMany();
+    const data = await prisma.gameCompletion.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      // take: 10,
+    });
     return NextResponse.json(data);
   } catch (error) {
     console.error("Database fetch error:", error);
     return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
   }
 }
-

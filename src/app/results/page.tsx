@@ -1,8 +1,9 @@
 "use client"
 import { useEffect, useState } from 'react'
+import { GameCompletion } from "@prisma/client"
 
 export default function Page() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<GameCompletion[]>([]);
   useEffect(() => {
     fetch("/api/results")
       .then((res) => res.json())
