@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { GameCompletion } from "@prisma/client";
+import { GameCompletion } from "@/lib/props";
 
 export default function Page() {
   const [data, setData] = useState<GameCompletion[]>([]);
