@@ -20,12 +20,12 @@ export default function Page() {
 
   return (
     <div>
-      {data.map((item: any) => (
+      {data.map((item: GameCompletion) => (
         <div className="flex gap-1" key={item.id}>
           <div>{item.completionTime}</div>
           <div>{item.difficulty}</div>
           <div>{item.rule}</div>
-          <div>{formattedDate(item.createdAt)}</div>
+          <div>{formattedDate(item.createdAt.toString())}</div>
         </div>
       ))}
     </div>
