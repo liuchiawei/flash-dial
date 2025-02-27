@@ -1,6 +1,6 @@
-"use client"
-import { useEffect, useState } from 'react'
-import { GameCompletion } from "@prisma/client"
+"use client";
+import { useEffect, useState } from "react";
+import { GameCompletion } from "@prisma/client";
 
 export default function Page() {
   const [data, setData] = useState<GameCompletion[]>([]);
@@ -11,11 +11,12 @@ export default function Page() {
   }, []);
 
   // 日時変換関数
-  const formattedDate = (date: string) => new Intl.DateTimeFormat("zh-TW", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date(date));
+  const formattedDate = (date: string) =>
+    new Intl.DateTimeFormat("zh-TW", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date(date));
 
   return (
     <div>
