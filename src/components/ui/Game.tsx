@@ -162,6 +162,7 @@ export default function Home() {
 
   useEffect(() => {
     setNumbers(shuffleNumbers());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [difficulty, rule]);
 
   // 處理點擊事件
