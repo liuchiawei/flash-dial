@@ -1,36 +1,187 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Flash Dial - 反応訓練ゲーム
 
-## Getting Started
+## 概要
 
-First, run the development server:
+Flash Dialは、数字を指定されたルールに従って順番にクリックする反応訓練ゲームです。プレイヤーは画面に表示される数字を、選択したルール（順番、奇数、偶数、素数）に従って正しい順序でクリックし、最短時間での完了を目指します。
+
+## 機能
+
+- **4つの難易度レベル**: Easy (3×3), Medium (5×5), Hard (7×7), Crazy (10×10)
+- **4つのゲームルール**: 順番、奇数のみ、偶数のみ、素数のみ
+- **タイマー機能**: リアルタイムタイマーとベストタイム記録
+- **レスポンシブデザイン**: モバイル対応のタッチインターフェース
+- **結果保存**: ゲーム完了時間の記録
+
+## 技術スタック
+
+- **フレームワーク**: Next.js 15 React 19
+- **言語**: TypeScript
+- **スタイリング**: Tailwind CSS 4
+- **データベース**: Prisma
+- **パッケージマネージャー**: pnpm
+
+## インストール
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# リポジトリのクローン
+git clone <repository-url>
+cd flash-dial
+
+# 依存関係のインストール
+pnpm install
+
+# 開発サーバーの起動
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## コンポーネント詳細
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Game.tsx コンポーネント
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+#### 主要な状態管理
 
-## Learn More
+- **difficulty**: ゲーム難易度（easy/medium/hard/crazy）
+- **rule**: ゲームルール（sequence/odd/even/prime）
+- **numbers**: ゲームボードに表示する数字の配列
+- **nextExpectedIndex**: 次にクリックすべき数字のインデックス
+- **timer**: 現在のゲーム時間
+- **isPlaying**: ゲーム進行中フラグ
+- **bestTime**: 最高記録時間
+- **wrongClick**: 間違ったクリックの数字
+- **isGameOver**: ゲーム終了フラグ
 
-To learn more about Next.js, take a look at the following resources:
+#### 主要関数の動作ロジック
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+##### `isPrime(num: number): boolean`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **目的**: 指定された数値が素数かどうかを判定
+- **ロジック**:
+  1. 2未満の数値は素数ではない
+  2. 2からその数値の平方根までの数で割り切れるかチェック
+  3. 割り切れる場合は素数ではない、そうでなければ素数
 
-## Deploy on Vercel
+##### `generateTargetSequence(max: number, rule: Rule): number[]`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **目的**: 選択されたルールに基づいて、クリックすべき数字の順序を生成
+- **ロジック**:
+  1. 1からmaxまでの数字配列を作成
+  2. 選択されたルールに応じてフィルタリング
+  - `"odd"`: 奇数のみ
+  - `"even"`: 偶数のみ
+  - `"prime"`: 素数のみ（isPrime関数を使用）
+  - `"sequence"`: 全ての数字（1から順番）
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+##### `shuffleNumbers(): number[]`
+
+- **目的**: ゲームボードに表示する数字をランダムに並べ替え
+- **ロジック**:
+  1. 現在の難易度のmax値に基づいて1からmaxまでの数字配列を作成
+  2. Fisher-Yatesアルゴリズムを使用してランダムシャッフル
+
+##### `startGame()`
+
+- **目的**: 新しいゲームを開始または現在のゲームをリセット
+- **ロジック**:
+  1. 数字をシャッフルして配置
+  2. 全ての状態変数をリセット（タイマー、インデックス、エラー状態など）
+  3. ゲーム開始時刻を記録
+  4. ローカルストレージからベストタイムを読み込み
+
+##### `recordGame()`
+
+- **目的**: ゲーム完了時に結果をAPIに送信
+- **ロジック**:
+  1. 現在のタイマー値を完了時間として取得
+  2. ユーザーID、完了時間、難易度、ルールを含むデータを作成
+  3. `/api/record`エンドポイントにPOSTリクエストを送信
+
+##### `handleClick(number: number)`
+
+- **目的**: プレイヤーが数字をクリックした際の処理
+- **ロジック**:
+  1. ゲームが進行中でない場合は処理を終了
+  2. 現在のターゲットシーケンスを生成
+  3. クリックされた数字が次に期待される数字と一致するかチェック
+  4. 正しい場合: 次のインデックスに進む
+  5. 間違いの場合: エラー状態を設定し、300ms後にクリア
+
+#### useEffect フック
+
+##### タッチスクロール無効化
+
+- **目的**: ゲーム中にタッチスクロールを防止
+- **動作**: `touchmove`イベントを無効化してゲームプレイの邪魔を防ぐ
+
+##### タイマー管理
+
+- **目的**: ゲーム進行中のタイマー更新
+- **動作**: 50ms間隔でタイマーを更新し、開始時刻からの経過時間を計算
+
+##### ゲーム完了チェック
+
+- **目的**: ゲーム完了の判定とベストタイム更新
+- **動作**:
+  1. 現在のインデックスがターゲットシーケンスの長さに達したかチェック
+  2. 完了時はゲーム状態を終了に変更
+  3. 現在の時間がベストタイムより短い場合は更新
+  4. 結果をAPIに記録
+
+##### 難易度・ルール変更時の数字シャッフル
+
+- **目的**: 設定変更時に新しい数字配列を生成
+- **動作**: 難易度またはルールが変更された時に自動的に数字をシャッフル
+
+### GameBoard.tsx コンポーネント
+
+#### 概要
+
+GameBoardコンポーネントは、ゲームの視覚的なインターフェースを提供する中核的なコンポーネントです。数字のグリッドを表示し、プレイヤーのクリック操作を処理します。
+
+#### 主要な機能
+
+##### レスポンシブグリッドレイアウト
+
+- **目的**: 難易度に応じたグリッドサイズの動的調整
+- **実装**: Tailwind CSSのgrid-colsクラスを使用
+  - 10×10 (Crazy): `grid-cols-10`
+  - 7×7 (Hard): `grid-cols-7`
+  - 5×5 (Medium): `grid-cols-5`
+  - 3×3 (Easy): `grid-cols-3`
+
+##### ボタン状態管理
+
+各数字ボタンは以下の状態を持ちます：
+
+- **isClicked**: 既にクリックされた数字（teal-500の背景色）
+- **isWrong**: 間違ったクリック（red-400の背景色）
+- **disabled**: 非アクティブ状態（ターゲットシーケンスに含まれない数字）
+- **default**: 通常状態（gray-600の背景色）
+
+##### インタラクティブフィードバック
+
+- **ホバーエフェクト**: マウスオーバー時の視覚的フィードバック
+- **クリックエフェクト**: `active:translate-y-[1px]`でクリック時の押下効果
+- **トランジション**: `transition-all`でスムーズな状態変化
+
+#### Props インターフェース
+
+- **numbers**: 表示する数字の配列
+- **handleClick**: クリックハンドラー関数
+- **isPlaying**: ゲーム進行状態
+- **isGameOver**: ゲーム終了状態
+- **targetSequence**: クリックすべき数字の順序
+- **nextExpectedIndex**: 次にクリックすべき数字のインデックス
+- **wrongClick**: 間違ったクリックの数字
+- **size**: グリッドサイズ
+
+## 使用方法
+
+1. **難易度選択**: S (3×3)、M (5×5)、L (7×7)、XL (10×10)から選択
+2. **ルール選択**: 順番、奇数、偶数、素数から選択
+3. **ゲーム開始**: スタートボタンをクリック
+4. **プレイ**: 選択したルールに従って数字を順番にクリック
+5. **結果確認**: 完了時間とベストタイムを確認
+
+## ライセンス
+
+このプロジェクトはMITライセンスの下で公開されています。

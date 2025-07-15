@@ -1,15 +1,6 @@
-interface GameBoardProps {
-  numbers: number[];
-  handleClick: (number: number) => void;
-  isPlaying: boolean;
-  isGameOver: boolean;
-  targetSequence: number[];
-  nextExpectedIndex: number;
-  wrongClick: number | null;
-  size: number;
-}
+import { GameBoardProps } from "@/lib/types";
 
-const GameBoard: React.FC<GameBoardProps> = ({
+export default function GameBoard({
   numbers,
   handleClick,
   isPlaying,
@@ -18,7 +9,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   nextExpectedIndex,
   wrongClick,
   size,
-}) => {
+}: GameBoardProps) {
   return (
     <div
       className={`w-full max-w-4xl h-2/3 grid gap-1 ${
@@ -62,5 +53,3 @@ const GameBoard: React.FC<GameBoardProps> = ({
     </div>
   );
 };
-
-export default GameBoard;

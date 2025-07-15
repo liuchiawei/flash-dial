@@ -1,17 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import GameBoard from "./GameBaord";
+import GameBoard from "./GameBoard";
 import { Icon } from "@iconify/react";
-
-// 定義難度和規則的類型
-type Difficulty = "easy" | "medium" | "hard" | "crazy";
-type Rule = "sequence" | "odd" | "even" | "prime";
-
-interface DifficultyConfig {
-  size: number;
-  max: number;
-}
+import { Difficulty, Rule, DifficultyConfig } from "@/lib/types";
 
 const difficulties: Record<Difficulty, DifficultyConfig> = {
   easy: { size: 3, max: 9 },
@@ -21,10 +13,11 @@ const difficulties: Record<Difficulty, DifficultyConfig> = {
 };
 
 const ruleLabels: Record<Rule, string> = {
-  sequence: "依序",
-  odd: "奇數",
-  even: "偶數",
-  prime: "質數",
+  // 日本語に変換しました
+  sequence: "順番",
+  odd: "奇数",
+  even: "偶数",
+  prime: "素数",
 };
 
 export default function Home() {
@@ -39,7 +32,7 @@ export default function Home() {
   const [wrongClick, setWrongClick] = useState<number | null>(null);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  // 禁用觸控捲動
+  // タッチスクロールを無効化
   useEffect(() => {
     const handleTouchMove = (e: TouchEvent) => {
       e.preventDefault();
@@ -47,7 +40,7 @@ export default function Home() {
     document.addEventListener("touchmove", handleTouchMove, { passive: false });
   }, []);
 
-  // 質數檢查函數
+  // 素数判定関数
   const isPrime = (num: number): boolean => {
     if (num < 2) return false;
     for (let i = 2; i <= Math.sqrt(num); i++) {
@@ -56,7 +49,7 @@ export default function Home() {
     return true;
   };
 
-  // 生成目標序列
+  // ターゲットシーケンス生成
   const generateTargetSequence = (max: number, rule: Rule): number[] => {
     const allNumbers = Array.from({ length: max }, (_, i) => i + 1);
     return allNumbers.filter((num) => {
@@ -67,7 +60,7 @@ export default function Home() {
     });
   };
 
-  // 隨機排列數字
+  // 数字をランダムに配置
   const shuffleNumbers = (): number[] => {
     const { max } = difficulties[difficulty];
     const nums = Array.from({ length: max }, (_, i) => i + 1);
@@ -78,7 +71,7 @@ export default function Home() {
     return nums;
   };
 
-  // 開始或重置遊戲
+  // ゲーム開始またはリセット
   const startGame = () => {
     const shuffled = shuffleNumbers();
     setNumbers(shuffled);
@@ -89,12 +82,12 @@ export default function Home() {
     setIsGameOver(false);
     setWrongClick(null);
 
-    // 載入最佳時間
+    // ベストタイム読み込み
     const storedBest = localStorage.getItem(`bestTime_${difficulty}_${rule}`);
     setBestTime(storedBest ? parseFloat(storedBest) : null);
   };
 
-  // 記錄遊戲結果
+  // ゲーム結果記録
   const recordGame = () => {
     const completionTime = parseFloat(timer.toString());
     const userId = "anonymous";
@@ -106,16 +99,16 @@ export default function Home() {
     }
   };
 
-  // isPlaying 事件
+  // isPlaying イベント
   useEffect(() => {
     if (isPlaying) {
-      // 開始計時
+      // タイマー開始
       const interval = setInterval(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         setTimer(((Date.now() - (startTime || 0)) / 1000).toFixed(2) as any);
       }, 50);
 
-      // 禁用觸控捲動
+      // タッチスクロールを無効化
       const container = containerRef.current;
       if (container) {
         const handleTouchMove = (e: TouchEvent) => {
@@ -133,20 +126,20 @@ export default function Home() {
     }
   }, [isPlaying, startTime]);
 
-  // 檢查遊戲是否完成並更新最佳時間
+  // ゲーム完了チェックとベストタイム更新
   useEffect(() => {
     const targetSequence = generateTargetSequence(
       difficulties[difficulty].max,
       rule
     );
-    // 遊戲完成
+    // ゲーム完了
     if (nextExpectedIndex >= targetSequence.length && isPlaying) {
       setIsPlaying(false);
       setIsGameOver(true);
       const currentTime = parseFloat(timer.toString());
       const storedBest = localStorage.getItem(`bestTime_${difficulty}_${rule}`);
       const best = storedBest ? parseFloat(storedBest) : Infinity;
-      // 更新最佳時間
+      // ベストタイム更新
       if (currentTime < best) {
         localStorage.setItem(
           `bestTime_${difficulty}_${rule}`,
@@ -154,7 +147,7 @@ export default function Home() {
         );
         setBestTime(currentTime);
       }
-      // 記錄遊戲結果
+      // ゲーム結果記録
       recordGame();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -165,21 +158,21 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [difficulty, rule]);
 
-  // 處理點擊事件
+  // クリックイベント処理
   const handleClick = (number: number) => {
     if (!isPlaying) return;
     const targetSequence = generateTargetSequence(
       difficulties[difficulty].max,
       rule
     );
-    // 如果點擊的數字是目標序列的下一個數字，則更新下一個預期索引
+    // クリックした数字がターゲットシーケンスの次の数字の場合、次の期待インデックスを更新
     if (number === targetSequence[nextExpectedIndex]) {
       setNextExpectedIndex((prev) => prev + 1);
       setWrongClick(null);
     } else {
-      // 如果點擊的數字不是目標序列的下一個數字，則設置錯誤點擊
+      // クリックした数字がターゲットシーケンスの次の数字でない場合、エラークリックを設定
       setWrongClick(number);
-      setTimeout(() => setWrongClick(null), 300); // 震動0.3秒後清除
+      setTimeout(() => setWrongClick(null), 300); // 0.3秒後にクリア
     }
   };
 
@@ -188,13 +181,13 @@ export default function Home() {
       className="flex flex-col items-center justify-center h-svh w-full p-4 gap-4"
       ref={containerRef}
     >
-      {/* Title Section 標題 */}
+      {/* Title Section タイトル */}
       {!isPlaying && !numbers.length && (
         <p className="text-gray-500 text-justify">
-          這是一個反應訓練小遊戲，請由小到大依序點擊畫面中的數字
+          これは反応訓練ゲームです。画面の数字を小さい順にクリックしてください。
         </p>
       )}
-      {/* Difficulty and Rule Selection Section 顯示難度和規則選擇 */}
+      {/* Difficulty and Rule Selection Section 難易度とルール選択 */}
       {!isPlaying && (
         <div className="flex gap-4 *:cursor-pointer">
           <select
@@ -202,7 +195,7 @@ export default function Home() {
             onChange={(e) => setDifficulty(e.target.value as Difficulty)}
             className="p-2 border rounded bg-gray-800"
             disabled={isPlaying}
-            title="難度"
+            title="難易度"
           >
             <option value="easy">S (3x3)</option>
             <option value="medium">M (5x5)</option>
@@ -214,7 +207,7 @@ export default function Home() {
             onChange={(e) => setRule(e.target.value as Rule)}
             className="p-2 border rounded bg-gray-800"
             disabled={isPlaying}
-            title="規則"
+            title="ルール"
           >
             {Object.entries(ruleLabels).map(([key, label]) => (
               <option key={key} value={key}>
@@ -225,29 +218,29 @@ export default function Home() {
         </div>
       )}
 
-      {/* Time Display Section 顯示時間和最佳時間 */}
+      {/* Time Display Section 時間とベストタイム表示 */}
       {(isPlaying ||
         nextExpectedIndex >=
           generateTargetSequence(difficulties[difficulty].max, rule)
             .length) && (
         <div className="flex flex-col items-center justify-center gap-1">
           {isPlaying ? (
-            <div className="text-xl">時間：{timer} 秒</div>
+            <div className="text-xl">タイム：{timer} 秒</div>
           ) : (
-            // Game Completion Message Section 顯示遊戲完成訊息
+            // Game Completion Message Section ゲーム完了メッセージ
             <div className="text-lg font-bold text-center">
-              恭喜！你在 {timer} 秒內完成。
+              おめでとうございます！{timer} 秒でクリアしました。
             </div>
           )}
           <div className="text-gray-500">
-            最佳時間：{bestTime !== null ? `${bestTime} 秒` : "尚未記錄"}
+            ベストタイム：{bestTime !== null ? `${bestTime} 秒` : "まだ記録されていません"}
           </div>
         </div>
       )}
 
-      {/* Game Board Section 遊戲面板 */}
+      {/* Game Board Section ゲームボード */}
       {numbers.length === 0 ? (
-        <div className="text-xl">請點擊「開始遊戲」開始</div>
+        <div className="text-xl">「スタート」をクリックしてください</div>
       ) : (
         <GameBoard
           numbers={numbers}
@@ -264,8 +257,9 @@ export default function Home() {
         />
       )}
 
-      {/* Start Button Section 開始按鈕 */}
+      {/* Start Button Section スタートボタン */}
       <button
+        title={isPlaying ? "ストップ" : "スタート"}
         onClick={isPlaying ? () => setIsPlaying(false) : startGame}
         className="px-4 py-2 bg-teal-700 text-white rounded-lg hover:bg-teal-600 cursor-pointer"
       >
